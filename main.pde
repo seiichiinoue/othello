@@ -4,8 +4,7 @@ import java.util.Arrays;
 final int blockSize = 100;
 boolean stone;
 int[][] field;
-int[][] currentField = new int[8][8];
-int[][] damiField = new int[8][8];
+int[][] searchField = new int[8][8];
 int[][] evaluateField = { //evaluation function
                           {30,-12,0,-1,-1,0,-12,30},
                           {-12,-15,-3,-3,-3,-3,-15,-12},
@@ -16,10 +15,13 @@ int[][] evaluateField = { //evaluation function
                           {-12,-15,-3,-3,-3,-3,-15,-12},
                           {30,-12,0,-1,-1,0,-12,30}
                         };  
-                        
+          
+void settings(){
+  size(8*blockSize, 8*blockSize);
+    //size(800, 800);
+}
+
 void setup(){
-  //size(8*blockSize, 8*blockSize);
-  size(800, 800);
   field = new int[8][8];
   for(int i=0; i<8; ++i){
     for(int j=0; j<8; ++j){
@@ -68,73 +70,55 @@ void mouseReleased(){
   int y = mouseY / blockSize;
 
   // player
-  for(int i=0; i<field.length; i++){
-    currentField[i] = field[i].clone();
+  Reverse whiteReverse = new Reverse(field);
+  if(whiteReverse.judge(x,y)){
+    field = whiteReverse.getField();
+    whiteReverse.turnChange();
   }
-  judge(x,y);
-  for(int i=0; i<field.length; i++){
-    field[i] = currentField[i].clone();
-  }  // update field
-  drawField(field);
-  stone = !stone;
-  
-  // cpu
-  cpu();
-  for(int i=0; i<field.length; i++){
-    field[i] = damiField[i].clone();
-  }
-  drawField(field);
-  stone = !stone;
-}
+  int point[] = new int[2];
+  point = search();
 
-boolean judge(int x, int y){
-  boolean puttable = false;
-  if(currentField[x][y]==0){
-    puttable = checkDirection(x,y,-1,-1) | puttable;
-    puttable = checkDirection(x,y,-1,0) | puttable;
-    puttable = checkDirection(x,y,-1,1) | puttable;
-
-    puttable = checkDirection(x,y,0,-1) | puttable;
-    puttable = checkDirection(x,y,0,1) | puttable;
-
-    puttable = checkDirection(x,y,1,-1) | puttable;
-    puttable = checkDirection(x,y,1,0) | puttable;
-    puttable = checkDirection(x,y,1,1) | puttable;
-
-    if(puttable){
-      currentField[x][y] = currentStone();
-    }
-  }
-  return puttable;
-}
-
-boolean checkDirection(int x, int y, int directionX, int directionY){
-  if(checkBound(x+directionX, y+directionY) && currentField[x+directionX][y+directionY] != currentStone()){
-    return checkStones(x, y, directionX, directionY);
-  }
-  return false;
-}
-
-boolean checkStones(int x, int y, int directionX, int directionY){
-  if(checkBound(x+directionX, y+directionY) && currentField[x+directionX][y+directionY] == currentStone()){
-    return true;
-  }else if(checkBound(x+directionX, y+directionY) && currentField[x+directionX][y+directionY] == 0){
-    return false;
-  }else if(checkBound(x+directionX, y+directionY) && checkStones(x+directionX, y+directionY, directionX, directionY)){
-    currentField[x+directionX][y+directionY] = currentStone(); // reverse
-    return true;
-  }else{
-    return false;
-  }
- }
-
-boolean checkBound(int x, int y){
-  return x>=0 && x<8 && y>=0 && y<8;
 }
 
 int currentStone(){
   return (stone)?1:-1;  
 }
+
+int[] search(){
+  int[] point = new int[2];
+  int v0 = -100;
+  int v1 = -100;
+  for(int i=0; i<8; i++){
+    for(int j=0; j<8; j++){
+      Reverse testReverse = new Reverse(field);
+      if(testReverse.judge(i,j)){
+        v1 = evaluation(testReverse.getField());
+        if(v1>v0){
+          point[0]=i;
+          point[1]=j;
+          println(point[0], point[1]);
+        }
+      }
+      v0 = v1;
+    }
+  }
+  return point;
+}
+
+int evaluation(int[][] args){
+  int score = 0;
+  for(int i=0; i<8; i++){
+    for(int j=0; j<8; j++){
+      if(args[i][j]==1){
+        score+=evaluateField[i][j];
+      }
+    }
+  }
+  return score;
+}
+
+
+
 
 // for console; display current status of field
 void drawField(int[][] args){
@@ -150,41 +134,3 @@ void drawField(int[][] args){
   }
   println("");
 }
-
-void cpu(){
-  int value = -100;
-  int currentValue = -100;
-  boolean bool = false;
-  for(int i=0; i<8; i++){
-    for(int j=0; j<8; j++){
-      bool = judge(i,j);  // changed "currentField"
-      drawField(currentField);
-      currentValue = evaluation();
-      if(value<currentValue && bool != false){
-        // damiField = currentField
-        for(int k=0; k<field.length; k++){
-          damiField[k] = currentField[k].clone();
-        }
-        value = currentValue;
-      }
-      // currentField = field; reset field
-      for(int l=0; l<field.length; l++){
-        currentField[l] = field[l].clone();
-      }
-    }
-  }
-}
-
-int evaluation(){
-  int score = 0;
-  for(int i=0; i<8; i++){
-    for(int j=0; j<8; j++){
-      if(currentField[j][i]==1){
-        score+=evaluateField[i][j];
-      }
-    }
-  }
-  return score;
-}
-
-
