@@ -4,7 +4,6 @@ import java.util.Arrays;
 final int blockSize = 100;
 boolean stone;
 int[][] field;
-int[][] searchField = new int[8][8];
 int[][] evaluateField = { //evaluation function
                           {30,-12,0,-1,-1,0,-12,30},
                           {-12,-15,-3,-3,-3,-3,-15,-12},
@@ -26,7 +25,7 @@ void setup(){
   for(int i=0; i<8; ++i){
     for(int j=0; j<8; ++j){
       if((i==3||i==4)&&(j==3||j==4)){
-        field[i][j] = ((i+j)%2==0)?1:-1; // initial stones, ?1:-1 mean if(.)==TRUE then return 1, else return -1
+        field[i][j] = ((i+j)%2==0)?1:-1; 
       }else{
         field[i][j] = 0;
       }
@@ -72,12 +71,22 @@ void mouseReleased(){
   // player
   Reverse whiteReverse = new Reverse(field);
   if(whiteReverse.judge(x,y)){
-    field = whiteReverse.getField();
+    for(int i=0; i<8; i++){
+      field[i] = whiteReverse.getField()[i].clone();
+    }
     whiteReverse.turnChange();
+    
+    // cpu
+    int point[] = new int[2];
+    Reverse blackReverse = new Reverse(field);
+    point = search();
+    if(blackReverse.judge(point[0],point[1])){
+      for(int i=0; i<8; i++){
+        field[i] = blackReverse.getField()[i].clone();
+    }
+      blackReverse.turnChange();
+    }
   }
-  int point[] = new int[2];
-  point = search();
-
 }
 
 int currentStone(){
@@ -116,9 +125,6 @@ int evaluation(int[][] args){
   }
   return score;
 }
-
-
-
 
 // for console; display current status of field
 void drawField(int[][] args){
