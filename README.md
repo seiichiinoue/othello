@@ -5,6 +5,4 @@
 ## Usage
 - processing上にて，`Main.pde`と`Reverse.pde`を読み込み，Ctrl+Rで遊べます．
 
-**プレイ画面**
 
-<img src="/Users/seiichi/Desktop/a.png" width=300>
