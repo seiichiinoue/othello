@@ -56,6 +56,10 @@ class Reverse{
   boolean checkBound(int x, int y){
     return x>=0 && x<8 && y>=0 && y<8;
   }
+
+  int currentStone(){
+  	return (stone)?1:-1;  
+  }
   
   void turnChange(){
     stone = !stone;

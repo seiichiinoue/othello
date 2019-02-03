@@ -89,10 +89,6 @@ void mouseReleased(){
   }
 }
 
-int currentStone(){
-  return (stone)?1:-1;  
-}
-
 int[] search(){
   int[] point = new int[2];
   int v0 = -100;
@@ -125,6 +121,7 @@ int evaluation(int[][] args){
   }
   return score;
 }
+
 
 // for console; display current status of field
 void drawField(int[][] args){
