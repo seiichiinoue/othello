@@ -58,7 +58,7 @@ class Reverse{
   }
 
   int currentStone(){
-  	return (stone)?1:-1;  
+    return (stone)?1:-1;  
   }
   
   void turnChange(){
